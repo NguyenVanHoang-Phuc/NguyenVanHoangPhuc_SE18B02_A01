@@ -25,12 +25,12 @@ namespace DataAccessLayer
             List<RoomType> roomTypes = new List<RoomType>();
             string SQL = "SELECT RoomTypeID, RoomTypeName, TypeDescription, TypeNote FROM RoomType";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 try
                 {
                     OpenConnection();
-                    using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                    using (var reader = command.ExecuteReader(CommandBehavior.CloseConnection))
                     {
                         while (reader.Read())
                         {
@@ -62,7 +62,7 @@ namespace DataAccessLayer
         {
             string SQL = "INSERT INTO RoomType (RoomTypeName, TypeDescription, TypeNote) VALUES (@RoomTypeName, @TypeDescription, @TypeNote)";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@RoomTypeName", roomType.RoomTypeName);
                 command.Parameters.AddWithValue("@TypeDescription", roomType.TypeDescription ?? (object)DBNull.Value);
@@ -89,7 +89,7 @@ namespace DataAccessLayer
         {
             string SQL = "UPDATE RoomType SET RoomTypeName = @RoomTypeName, TypeDescription = @TypeDescription, TypeNote = @TypeNote WHERE RoomTypeID = @RoomTypeID";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@RoomTypeID", roomType.RoomTypeId);
                 command.Parameters.AddWithValue("@RoomTypeName", roomType.RoomTypeName);
@@ -113,13 +113,14 @@ namespace DataAccessLayer
         }
 
         // Xóa một loại phòng
-        public void DeleteRoomType(RoomType rt)
+        public void DeleteRoomType(RoomType roomType)
+
         {
             string SQL = "DELETE FROM RoomType WHERE RoomTypeID = @RoomTypeID";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
-                command.Parameters.AddWithValue("@RoomTypeID", rt.RoomTypeId);
+                command.Parameters.AddWithValue("@RoomTypeID", roomType.RoomTypeId);
 
                 try
                 {
@@ -143,14 +144,14 @@ namespace DataAccessLayer
             RoomType roomType = null;
             string SQL = "SELECT RoomTypeID, RoomTypeName, TypeDescription, TypeNote FROM RoomType WHERE RoomTypeID = @RoomTypeID";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@RoomTypeID", roomTypeId);
 
                 try
                 {
                     OpenConnection();
-                    using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                    using (var reader = command.ExecuteReader(CommandBehavior.CloseConnection))
                     {
                         if (reader.Read())
                         {

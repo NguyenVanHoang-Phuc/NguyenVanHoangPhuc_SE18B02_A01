@@ -25,12 +25,12 @@ namespace DataAccessLayer
             List<RoomInformation> rooms = new List<RoomInformation>();
             string SQL = "SELECT RoomID, RoomNumber, RoomDetailDescription, RoomMaxCapacity, RoomTypeID, RoomStatus, RoomPricePerDay FROM RoomInformation";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 try
                 {
                     OpenConnection();
-                    using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                    using (var reader = command.ExecuteReader(CommandBehavior.CloseConnection))
                     {
                         while (reader.Read())
                         {
@@ -65,7 +65,7 @@ namespace DataAccessLayer
         {
             string SQL = "INSERT INTO RoomInformation (RoomNumber, RoomDetailDescription, RoomMaxCapacity, RoomTypeID, RoomStatus, RoomPricePerDay) VALUES (@RoomNumber, @RoomDetailDescription, @RoomMaxCapacity, @RoomTypeID, @RoomStatus, @RoomPricePerDay)";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@RoomNumber", room.RoomNumber);
                 command.Parameters.AddWithValue("@RoomDetailDescription", room.RoomDetailDescription ?? (object)DBNull.Value);
@@ -95,7 +95,7 @@ namespace DataAccessLayer
         {
             string SQL = "UPDATE RoomInformation SET RoomNumber = @RoomNumber, RoomDetailDescription = @RoomDetailDescription, RoomMaxCapacity = @RoomMaxCapacity, RoomTypeID = @RoomTypeID, RoomStatus = @RoomStatus, RoomPricePerDay = @RoomPricePerDay WHERE RoomID = @RoomID";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@RoomID", room.RoomId);
                 command.Parameters.AddWithValue("@RoomNumber", room.RoomNumber);
@@ -122,13 +122,13 @@ namespace DataAccessLayer
         }
 
         // Xóa một phòng
-        public void DeleteRoom(RoomInformation r)
+        public void DeleteRoom(RoomInformation room)
         {
             string SQL = "DELETE FROM RoomInformation WHERE RoomID = @RoomID";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
-                command.Parameters.AddWithValue("@RoomID", r.RoomId);
+                command.Parameters.AddWithValue("@RoomID", room.RoomId);
 
                 try
                 {
@@ -152,14 +152,14 @@ namespace DataAccessLayer
             RoomInformation room = null;
             string SQL = "SELECT RoomID, RoomNumber, RoomDetailDescription, RoomMaxCapacity, RoomTypeID, RoomStatus, RoomPricePerDay FROM RoomInformation WHERE RoomID = @RoomID";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@RoomID", roomId);
 
                 try
                 {
                     OpenConnection();
-                    using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                    using (var reader = command.ExecuteReader(CommandBehavior.CloseConnection))
                     {
                         if (reader.Read())
                         {

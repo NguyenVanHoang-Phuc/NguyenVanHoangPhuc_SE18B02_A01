@@ -25,12 +25,12 @@ namespace DataAccessLayer
             List<Customer> customers = new List<Customer>();
             string SQL = "SELECT CustomerID, CustomerFullName, Telephone, EmailAddress, CustomerBirthday, CustomerStatus, Password FROM Customer";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 try
                 {
                     OpenConnection();
-                    using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                    using (var reader = command.ExecuteReader(CommandBehavior.CloseConnection))
                     {
                         while (reader.Read())
                         {
@@ -65,7 +65,7 @@ namespace DataAccessLayer
         {
             string SQL = "INSERT INTO Customer (CustomerFullName, Telephone, EmailAddress, CustomerBirthday, CustomerStatus, Password) VALUES (@CustomerFullName, @Telephone, @EmailAddress, @CustomerBirthday, @CustomerStatus, @Password)";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@CustomerFullName", customer.CustomerFullName ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Telephone", customer.Telephone ?? (object)DBNull.Value);
@@ -95,7 +95,7 @@ namespace DataAccessLayer
         {
             string SQL = "UPDATE Customer SET CustomerFullName = @CustomerFullName, Telephone = @Telephone, EmailAddress = @EmailAddress, CustomerBirthday = @CustomerBirthday, CustomerStatus = @CustomerStatus, Password = @Password WHERE CustomerID = @CustomerID";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@CustomerID", customer.CustomerId);
                 command.Parameters.AddWithValue("@CustomerFullName", customer.CustomerFullName ?? (object)DBNull.Value);
@@ -122,13 +122,13 @@ namespace DataAccessLayer
         }
 
         // Xóa một khách hàng
-        public void DeleteCustomer(Customer c)
+        public void DeleteCustomer(Customer customer)
         {
             string SQL = "DELETE FROM Customer WHERE CustomerID = @CustomerID";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
-                command.Parameters.AddWithValue("@CustomerID", c.CustomerId);
+                command.Parameters.AddWithValue("@CustomerID", customer.CustomerId);
 
                 try
                 {
@@ -152,14 +152,14 @@ namespace DataAccessLayer
             Customer customer = null;
             string SQL = "SELECT CustomerID, CustomerFullName, Telephone, EmailAddress, CustomerBirthday, CustomerStatus, Password FROM Customer WHERE CustomerID = @CustomerID";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@CustomerID", customerId);
 
                 try
                 {
                     OpenConnection();
-                    using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                    using (var reader = command.ExecuteReader(CommandBehavior.CloseConnection))
                     {
                         if (reader.Read())
                         {
@@ -195,14 +195,14 @@ namespace DataAccessLayer
             Customer customer = null;
             string SQL = "SELECT CustomerID, CustomerFullName, Telephone, EmailAddress, CustomerBirthday, CustomerStatus, Password FROM Customer WHERE EmailAddress = @EmailAddress";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@EmailAddress", email);
 
                 try
                 {
                     OpenConnection();
-                    using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                    using (var reader = command.ExecuteReader(CommandBehavior.CloseConnection))
                     {
                         if (reader.Read())
                         {
@@ -231,5 +231,6 @@ namespace DataAccessLayer
 
             return customer;
         }
+
     }
 }

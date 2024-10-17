@@ -19,18 +19,19 @@ namespace DataAccessLayer
 
         // Property để truy cập instance
         public static BookingReservationDAO Instance => _instance.Value;
+        
         // Lấy tất cả các đặt phòng
         public List<BookingReservation> GetAllBookingReservations()
         {
             List<BookingReservation> reservations = new List<BookingReservation>();
             string SQL = "SELECT BookingReservationID, BookingDate, TotalPrice, CustomerID, BookingStatus FROM BookingReservation";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 try
                 {
                     OpenConnection();
-                    using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                    using (var reader = command.ExecuteReader(CommandBehavior.CloseConnection))
                     {
                         while (reader.Read())
                         {
@@ -63,7 +64,7 @@ namespace DataAccessLayer
         {
             string SQL = "INSERT INTO BookingReservation (BookingDate, TotalPrice, CustomerID, BookingStatus) VALUES (@BookingDate, @TotalPrice, @CustomerID, @BookingStatus)";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@BookingDate", b.BookingDate.HasValue ? (object)b.BookingDate.Value.ToDateTime(new TimeOnly()) : DBNull.Value);
                 command.Parameters.AddWithValue("@TotalPrice", b.TotalPrice.HasValue ? (object)b.TotalPrice.Value : DBNull.Value);
@@ -91,7 +92,7 @@ namespace DataAccessLayer
         {
             string SQL = "UPDATE BookingReservation SET BookingDate = @BookingDate, TotalPrice = @TotalPrice, CustomerID = @CustomerID, BookingStatus = @BookingStatus WHERE BookingReservationID = @BookingReservationID";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@BookingReservationID", b.BookingReservationId);
                 command.Parameters.AddWithValue("@BookingDate", b.BookingDate.HasValue ? (object)b.BookingDate.Value.ToDateTime(new TimeOnly()) : DBNull.Value);
@@ -120,7 +121,7 @@ namespace DataAccessLayer
         {
             string SQL = "DELETE FROM BookingReservation WHERE BookingReservationID = @BookingReservationID";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@BookingReservationID", b.BookingReservationId);
 
@@ -146,14 +147,14 @@ namespace DataAccessLayer
             BookingReservation reservation = null;
             string SQL = "SELECT BookingReservationID, BookingDate, TotalPrice, CustomerID, BookingStatus FROM BookingReservation WHERE BookingReservationID = @BookingReservationID";
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
+            using (var command = new SqlCommand(SQL, Connection))
             {
                 command.Parameters.AddWithValue("@BookingReservationID", bookingReservationId);
 
                 try
                 {
                     OpenConnection();
-                    using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                    using (var reader = command.ExecuteReader(CommandBehavior.CloseConnection))
                     {
                         if (reader.Read())
                         {
@@ -181,47 +182,15 @@ namespace DataAccessLayer
             return reservation;
         }
 
+        // Lấy danh sách đặt phòng theo khoảng thời gian
         public List<BookingReservation> GetBookingReservationsByDateRange(DateOnly startDate, DateOnly endDate)
         {
-            List<BookingReservation> reservations = new List<BookingReservation>();
-            string SQL = "SELECT BookingReservationID, BookingDate, TotalPrice, CustomerID, BookingStatus " +
-                         "FROM BookingReservation " +
-                         "WHERE BookingDate >= @StartDate AND BookingDate <= @EndDate";
+            List<BookingReservation> reservations = GetAllBookingReservations(); // Lấy tất cả đặt phòng
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
-            {
-                command.Parameters.AddWithValue("@StartDate", startDate.ToDateTime(new TimeOnly()));
-                command.Parameters.AddWithValue("@EndDate", endDate.ToDateTime(new TimeOnly()));
-
-                try
-                {
-                    OpenConnection();
-                    using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
-                    {
-                        while (reader.Read())
-                        {
-                            reservations.Add(new BookingReservation
-                            {
-                                BookingReservationId = reader.GetInt32(reader.GetOrdinal("BookingReservationID")),
-                                BookingDate = reader.IsDBNull(reader.GetOrdinal("BookingDate")) ? (DateOnly?)null : DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("BookingDate"))),
-                                TotalPrice = reader.IsDBNull(reader.GetOrdinal("TotalPrice")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("TotalPrice")),
-                                CustomerId = reader.GetInt32(reader.GetOrdinal("CustomerID")),
-                                BookingStatus = reader.IsDBNull(reader.GetOrdinal("BookingStatus")) ? (byte?)null : reader.GetByte(reader.GetOrdinal("BookingStatus"))
-                            });
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(ex.Message);
-                }
-                finally
-                {
-                    CloseConnection();
-                }
-            }
-
-            return reservations;
+            // Sử dụng LINQ để lọc danh sách theo khoảng thời gian
+            return reservations
+                .Where(r => r.BookingDate >= startDate && r.BookingDate <= endDate)
+                .ToList();
         }
     }
 }

@@ -23,7 +23,7 @@ namespace DataAccessLayer
         public List<BookingDetail> GetBookingDetails()
         {
             List<BookingDetail> listBookingDetail = new List<BookingDetail>();
-            string SQL = "SELECT BookingID, CustomerID, RoomID, StartDate, EndDate, Status FROM BookingDetails"; // Adjust SQL to match your table structure.
+            string SQL = "SELECT BookingReservationID, RoomID, StartDate, EndDate, ActualPrice FROM BookingDetail";
 
             using (command = new SqlCommand(SQL, Connection))
             {
@@ -140,45 +140,13 @@ namespace DataAccessLayer
             }
         }
 
+        // Lấy BookingDetail theo ID sử dụng LINQ
         public BookingDetail GetBookingDetailById(int bookingReservationId, int roomId)
         {
-            BookingDetail bookingDetail = null;
-            string SQL = "SELECT BookingReservationID, RoomID, StartDate, EndDate, ActualPrice FROM BookingDetail WHERE BookingReservationID = @BookingReservationID AND RoomID = @RoomID";
+            var bookingDetails = GetBookingDetails(); // Lấy tất cả BookingDetail vào bộ nhớ
 
-            using (SqlCommand command = new SqlCommand(SQL, Connection))
-            {
-                command.Parameters.AddWithValue("@BookingReservationID", bookingReservationId);
-                command.Parameters.AddWithValue("@RoomID", roomId);
-
-                try
-                {
-                    OpenConnection();
-                    using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection))
-                    {
-                        if (reader.Read())
-                        {
-                            bookingDetail = new BookingDetail
-                            {
-                                BookingReservationId = reader.GetInt32(reader.GetOrdinal("BookingReservationID")),
-                                RoomId = reader.GetInt32(reader.GetOrdinal("RoomID")),
-                                StartDate = DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("StartDate"))),
-                                EndDate = DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("EndDate"))),
-                                ActualPrice = reader.IsDBNull(reader.GetOrdinal("ActualPrice")) ? (decimal?)null : reader.GetDecimal(reader.GetOrdinal("ActualPrice"))
-                            };
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(ex.Message);
-                }
-                finally
-                {
-                    CloseConnection();
-                }
-            }
-
-            return bookingDetail;
+            // Sử dụng LINQ để tìm BookingDetail
+            return bookingDetails.FirstOrDefault(b => b.BookingReservationId == bookingReservationId && b.RoomId == roomId);
         }
     }
 }
